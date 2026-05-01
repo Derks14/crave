@@ -1,6 +1,7 @@
 package order.service;
 
 import lombok.RequiredArgsConstructor;
+import order.clients.InventoryClient;
 import order.dto.OrderRequest;
 import order.models.Order;
 import order.repository.OrderRepository;
@@ -13,15 +14,24 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final InventoryClient inventoryClient;
 
     public Order placeOrder(OrderRequest request) {
 
-        Order order = new Order();
-        order.setOrderNumber(UUID.randomUUID().toString());
-        order.setSkuCode(request.skuCode());
-        order.setPrice(request.price());
-        order.setQuantity(request.quantity());
+        boolean isFoodAvailable = inventoryClient.isSkuCodeItemInStock(request.skuCode());
 
-        return orderRepository.save(order);
+        if (isFoodAvailable) {
+            Order order = new Order();
+            order.setOrderNumber(UUID.randomUUID().toString());
+            order.setSkuCode(request.skuCode());
+            order.setPrice(request.price());
+            order.setQuantity(request.quantity());
+
+            return orderRepository.save(order);
+        }
+
+        throw new RuntimeException("the food %s not available".formatted(request.skuCode()));
+
+
     }
 }

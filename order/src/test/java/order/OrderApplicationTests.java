@@ -1,23 +1,32 @@
 package order;
 
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import order.dto.OrderRequest;
 import order.models.Order;
 import order.repository.OrderRepository;
+import order.stubs.InventoryClientStubs;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.mysql.MySQLContainer;
 import tools.jackson.databind.ObjectMapper;
 
+
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,6 +41,18 @@ class OrderApplicationTests {
 	@ServiceConnection
 	static MySQLContainer sqlContainer = new MySQLContainer("mysql:8.3.0");
 
+	@RegisterExtension
+	static WireMockExtension wireMock = WireMockExtension.newInstance()
+			.options(wireMockConfig().dynamicPort())
+			.configureStaticDsl(true)
+			.build();
+
+	@DynamicPropertySource
+	static void wireMockProperties(DynamicPropertyRegistry registry) {
+//		registry.add("inventry.url", wireMock::baseUrl);
+		registry.add("inventory.url", () -> "http://localhost:" + wireMock.getPort());
+	}
+
 	@Autowired
 	private MockMvc mockMvc;
 
@@ -44,11 +65,13 @@ class OrderApplicationTests {
 	void testPlaceNewOrder() throws Exception {
 		String orderRequest = """
 				{
-					"skuCode": "double-quarter-pound",
+					"skuCode": "quarter_pounder",
 					"price": 12.00,
 					"quantity": 2
 				}
 				""";
+
+		InventoryClientStubs.stubInventoryCall("quarter_pounder");
 
 		MvcResult result = mockMvc
 				.perform(
