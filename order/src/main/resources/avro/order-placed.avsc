@@ -1,0 +1,11 @@
+{
+  "type": "record",
+  "name": "OrderPlacedEvent",
+  "namespace": "events",
+  "fields": [
+    { "name": "orderNumber", "type": "string"},
+    { "name": "email", "type": "string"},
+    { "name": "firstname", "type": "string"},
+    { "name": "lastname", "type": "string"}
+  ]
+}

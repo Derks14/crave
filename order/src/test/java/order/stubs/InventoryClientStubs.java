@@ -1,7 +1,5 @@
 package order.stubs;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 public class InventoryClientStubs {
