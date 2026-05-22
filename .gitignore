@@ -23,5 +23,6 @@ dist/
 .vscode/
 
 
-order/mysql/
-inventory/mysql
+
+mysql/
+volume-data/

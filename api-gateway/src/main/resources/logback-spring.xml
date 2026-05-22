@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <springProperty scope="context" name="appName" source="spring.application.name"/>
+
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>http://localhost:3100/loki/api/v1/push</url>
+            <requestTimeoutMs>10000</requestTimeoutMs>
+        </http>
+        <labels>
+            agent=loki4j
+            application=${appName}
+            service=${appName}
+            host=${HOSTNAME:-unknown}
+        </labels>
+        <structuredMetadata>
+            level=%level
+            thread=%thread
+        </structuredMetadata>
+        <message>
+            <pattern>%-5level [%thread] %logger{20} - %msg%n</pattern>
+        </message>
+        <batch>
+            <maxItems>100</maxItems>
+            <timeoutMs>10000</timeoutMs>
+        </batch>
+
+        <metricsEnabled>true</metricsEnabled>
+        <verbose>true</verbose>
+
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="LOKI"/>
+    </root>
+</configuration>
