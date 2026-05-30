@@ -17,14 +17,14 @@ scrape_configs:
     static_configs:
       - targets: ['host.docker.internal:8080']
         labels:
-          application: 'Product Service'
+          application: 'food service'
 
   - job_name: 'order-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['host.docker.internal:8081']
         labels:
-          application: 'Order Service'
+          application: 'order service'
 
   - job_name: 'inventory-service'
     metrics_path: '/actuator/prometheus'
@@ -37,4 +37,4 @@ scrape_configs:
     static_configs:
       - targets: ['host.docker.internal:8083']
         labels:
-          application: 'Notification Service'
+          application: 'notification service'

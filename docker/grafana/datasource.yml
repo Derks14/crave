@@ -11,13 +11,14 @@ datasources:
       exemplarTraceIdDestinations:
         - name: trace_id
           datasourceUid: tempo
+
   - name: Tempo
     type: tempo
     access: proxy
     orgId: 1
     url: http://tempo:3200
     basicAuth: false
-    isDefault: true
+    isDefault: false
     version: 1
     editable: false
     apiVersion: 1
@@ -25,9 +26,10 @@ datasources:
     jsonData:
       httpMethod: GET
       tracesToLogs:
-        datasourceUid: loki
+        datasourceUid: 'loki'
       nodeGraph:
         enabled: true
+
   - name: Loki
     type: loki
     uid: loki

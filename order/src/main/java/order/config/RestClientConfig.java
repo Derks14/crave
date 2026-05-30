@@ -1,5 +1,6 @@
 package order.config;
 
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import order.clients.InventoryService;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,12 +24,13 @@ public class RestClientConfig {
     private String baseUrl;
 
     @Bean
-    public InventoryService inventoryService() {
+    public InventoryService inventoryService(ObservationRegistry observationRegistry) {
 
         // we first build our rest client and create an adapter using that. We then pass that into an http service proxy factory
         RestClient restClient = RestClient.builder()
                 .baseUrl(baseUrl)
                 .requestFactory(getClientRequestFactory())
+                .observationRegistry(observationRegistry)
                 .defaultStatusHandler(HttpStatusCode::is4xxClientError, ((request, response) -> {
                     log.info("something wrong with then data we sending");
                 }))
